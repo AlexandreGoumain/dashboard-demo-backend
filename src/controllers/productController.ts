@@ -72,7 +72,7 @@ export const deleteProduct = asyncHandler(
 );
 
 export const getCategories = asyncHandler(
-    async (req: AuthRequest, res: Response) => {
+    async (_req: AuthRequest, res: Response) => {
         const categories = await productService.getCategories();
 
         res.json({

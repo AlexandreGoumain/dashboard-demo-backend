@@ -44,7 +44,7 @@ if (env.server.env === "development") {
 app.use("/api", generalLimiter);
 
 // Health check endpoint
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
     res.json({
         success: true,
         message: "Server is running",
@@ -59,7 +59,7 @@ app.use("/api/products", productRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 // 404 handler
-app.use((req, res) => {
+app.use((_req, res) => {
     res.status(404).json({
         success: false,
         error: "Route not found",

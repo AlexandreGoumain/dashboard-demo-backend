@@ -16,6 +16,9 @@ npm-debug.log*
 # Prisma
 prisma/migrations/*/.migration
 prisma/seed.ts
+prisma/seed.*js
+prisma/seed.*js.*
+prisma/seed.*d.*
 
 *.db
 *.db-journal
@@ -37,4 +40,3 @@ Thumbs.db
 # Personal-Doc
 *.md
 !README.md
-test-*.json

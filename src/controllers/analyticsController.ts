@@ -6,7 +6,7 @@ import { AuthRequest } from "../types";
 const analyticsService = new AnalyticsService();
 
 export const getDashboardStats = asyncHandler(
-    async (req: AuthRequest, res: Response) => {
+    async (_req: AuthRequest, res: Response) => {
         const stats = await analyticsService.getDashboardStats();
 
         res.json({
@@ -29,7 +29,7 @@ export const getSalesData = asyncHandler(
 );
 
 export const getCategoryData = asyncHandler(
-    async (req: AuthRequest, res: Response) => {
+    async (_req: AuthRequest, res: Response) => {
         const categoryData = await analyticsService.getCategoryData();
 
         res.json({

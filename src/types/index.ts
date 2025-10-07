@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+﻿import { Role, ProductStatus } from "@prisma/client";
 import { Request } from "express";
 
 // Extend Express Request to include user
@@ -84,7 +84,7 @@ export interface UpdateProductInput {
     categoryId?: string;
     image?: string;
     sku?: string;
-    status?: string;
+    status?: ProductStatus;
 }
 
 // Query types
@@ -100,7 +100,7 @@ export interface ProductFilters extends PaginationQuery {
     categoryId?: string;
     minPrice?: number;
     maxPrice?: number;
-    status?: string;
+    status?: ProductStatus;
 }
 
 // Analytics types

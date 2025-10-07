@@ -43,7 +43,7 @@ export const login = asyncHandler(async (req: AuthRequest, res: Response) => {
     });
 });
 
-export const logout = asyncHandler(async (req: AuthRequest, res: Response) => {
+export const logout = asyncHandler(async (_req: AuthRequest, res: Response) => {
     res.clearCookie("token");
 
     res.json({

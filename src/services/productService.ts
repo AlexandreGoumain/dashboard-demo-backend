@@ -1,4 +1,4 @@
-import { ProductStatus } from "@prisma/client";
+import { Prisma, ProductStatus } from "@prisma/client";
 import prisma from "../config/database";
 import { AppError } from "../middleware/errorHandler";
 import {
@@ -219,9 +219,18 @@ export class ProductService {
         }
 
         // Update product
+        const { categoryId, ...rest } = data;
+        const updateData: Prisma.ProductUpdateInput = {
+            ...rest,
+        };
+
+        if (categoryId) {
+            updateData.category = { connect: { id: categoryId } };
+        }
+
         const product = await prisma.product.update({
             where: { id },
-            data,
+            data: updateData,
             include: {
                 category: true,
                 createdBy: {
