@@ -21,7 +21,17 @@ app.use(helmet());
 // CORS configuration
 app.use(
     cors({
-        origin: env.cors.origin,
+        origin: (origin, callback) => {
+            if (
+                !origin ||
+                env.cors.origins.includes("*") ||
+                env.cors.origins.includes(origin)
+            ) {
+                callback(null, true);
+            } else {
+                callback(new Error("Not allowed by CORS"));
+            }
+        },
         credentials: true,
     })
 );
