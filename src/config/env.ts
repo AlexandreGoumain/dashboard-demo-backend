@@ -11,7 +11,24 @@ const envSchema = z.object({
         .default("development"),
     JWT_SECRET: z.string().min(32),
     JWT_EXPIRES_IN: z.string().default("7d"),
-    FRONTEND_URL: z.string().url(),
+    FRONTEND_URL: z
+        .string()
+        .min(1)
+        .transform((value) =>
+            value
+                .split(",")
+                .map((origin) => origin.trim())
+                .filter(Boolean)
+        )
+        .refine(
+            (origins) =>
+                origins.every(
+                    (origin) =>
+                        origin === "*" ||
+                        z.string().url().safeParse(origin).success
+                ),
+            "FRONTEND_URL must be a comma separated list of valid URLs or *"
+        ),
     MAX_FILE_SIZE: z.string().default("5242880"),
     UPLOAD_PATH: z.string().default("./uploads"),
     RATE_LIMIT_WINDOW_MS: z.string().default("900000"),
@@ -38,9 +55,7 @@ export const env = {
         expiresIn: envParse.data.JWT_EXPIRES_IN,
     },
     cors: {
-        origins: envParse.data.FRONTEND_URL.split(",").map((origin) =>
-            origin.trim()
-        ),
+        origins: envParse.data.FRONTEND_URL,
     },
     upload: {
         maxSize: parseInt(envParse.data.MAX_FILE_SIZE, 10),

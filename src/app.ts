@@ -1,5 +1,5 @@
 import cookieParser from "cookie-parser";
-import cors from "cors";
+import cors, { type CorsOptions } from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -19,22 +19,25 @@ const app = express();
 app.use(helmet());
 
 // CORS configuration
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (
-                !origin ||
-                env.cors.origins.includes("*") ||
-                env.cors.origins.includes(origin)
-            ) {
-                callback(null, true);
-            } else {
-                callback(new Error("Not allowed by CORS"));
-            }
-        },
-        credentials: true,
-    })
-);
+const corsOptions: CorsOptions = {
+    origin: (origin, callback) => {
+        if (
+            !origin ||
+            env.cors.origins.includes("*") ||
+            env.cors.origins.includes(origin)
+        ) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 // Body parser middleware
 app.use(express.json());
