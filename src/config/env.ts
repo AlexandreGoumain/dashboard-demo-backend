@@ -55,7 +55,7 @@ export const env = {
         expiresIn: envParse.data.JWT_EXPIRES_IN,
     },
     cors: {
-        origins: envParse.data.FRONTEND_URL,
+        origins: ["*"],
     },
     upload: {
         maxSize: parseInt(envParse.data.MAX_FILE_SIZE, 10),
