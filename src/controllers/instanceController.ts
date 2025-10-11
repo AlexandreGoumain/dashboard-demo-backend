@@ -1,13 +1,19 @@
 import { Response } from "express";
-import { asyncHandler } from "../middleware/errorHandler";
+import { AppError, asyncHandler } from "../middleware/errorHandler";
 import { InstanceService } from "../services/instanceService";
 import { AuthRequest } from "../types";
 
 const instanceService = new InstanceService();
 
 export const getSuperInstances = asyncHandler(
-    async (_req: AuthRequest, res: Response) => {
-        const instances = await instanceService.listSuperInstances();
+    async (req: AuthRequest, res: Response) => {
+        if (!req.user?.id) {
+            throw new AppError(401, "Authentication required");
+        }
+
+        const instances = await instanceService.listSuperInstances(
+            req.user.id
+        );
 
         res.json({
             success: true,
@@ -15,4 +21,3 @@ export const getSuperInstances = asyncHandler(
         });
     }
 );
-

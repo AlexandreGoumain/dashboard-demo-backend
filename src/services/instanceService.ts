@@ -2,8 +2,13 @@ import prisma from "../config/database";
 import { ProjectInstance } from "../types";
 
 export class InstanceService {
-    async listSuperInstances(): Promise<ProjectInstance[]> {
+    async listSuperInstances(userId: string): Promise<ProjectInstance[]> {
         const instances = await prisma.instance.findMany({
+            where: {
+                members: {
+                    some: { id: userId },
+                },
+            },
             orderBy: { name: "asc" },
         });
 
