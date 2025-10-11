@@ -16,8 +16,8 @@ const router = Router();
 // All user routes require authentication
 router.use(authenticate);
 
-// Get all users (Admin only)
-router.get("/", authorize("ADMIN"), getUsers);
+// Get all users (Admin and Super)
+router.get("/", authorize("ADMIN", "SUPER"), getUsers);
 
 // Get user by ID
 router.get("/:id", getUserById);
@@ -25,13 +25,13 @@ router.get("/:id", getUserById);
 // Get user stats
 router.get("/:id/stats", getUserStats);
 
-// Create user (Admin only)
-router.post("/", authorize("ADMIN"), validate(createUserSchema), createUser);
+// Create user (Admin and Super)
+router.post("/", authorize("ADMIN", "SUPER"), validate(createUserSchema), createUser);
 
-// Update user (Admin only)
-router.put("/:id", authorize("ADMIN"), validate(updateUserSchema), updateUser);
+// Update user (Admin and Super)
+router.put("/:id", authorize("ADMIN", "SUPER"), validate(updateUserSchema), updateUser);
 
-// Delete user (Admin only)
-router.delete("/:id", authorize("ADMIN"), deleteUser);
+// Delete user (Admin and Super)
+router.delete("/:id", authorize("ADMIN", "SUPER"), deleteUser);
 
 export default router;

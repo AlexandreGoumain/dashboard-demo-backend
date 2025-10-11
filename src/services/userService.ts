@@ -3,13 +3,24 @@ import { AppError } from "../middleware/errorHandler";
 import { CreateUserInput, PaginationQuery, UpdateUserInput } from "../types";
 import { hashPassword } from "../utils/password";
 
+function toNumber(value: unknown): number | undefined {
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export class UserService {
     async getUsers(query: PaginationQuery) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
+        const parsedPage = toNumber(query.page);
+        const parsedLimit = toNumber(query.limit);
+        const page = parsedPage && parsedPage > 0 ? Math.floor(parsedPage) : 1;
+        const limit =
+            parsedLimit && parsedLimit > 0 ? Math.floor(parsedLimit) : 10;
         const skip = (page - 1) * limit;
         const sortBy = query.sortBy || "createdAt";
-        const order = query.order || "desc";
+        const order = query.order === "asc" ? "asc" : "desc";
         const search = query.search || "";
 
         // Build where clause for search

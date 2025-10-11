@@ -27,14 +27,14 @@ export const createUserSchema = z.object({
         .regex(/[a-z]/, "Password must contain at least one lowercase letter")
         .regex(/[0-9]/, "Password must contain at least one number"),
     name: z.string().min(2, "Name must be at least 2 characters"),
-    role: z.enum(["ADMIN", "USER"]).optional(),
+    role: z.enum(["SUPER", "ADMIN", "USER"]).optional(),
     avatar: z.string().url().optional(),
 });
 
 export const updateUserSchema = z.object({
     email: z.string().email("Invalid email format").optional(),
     name: z.string().min(2, "Name must be at least 2 characters").optional(),
-    role: z.enum(["ADMIN", "USER"]).optional(),
+    role: z.enum(["SUPER", "ADMIN", "USER"]).optional(),
     avatar: z.string().url().optional(),
     password: z
         .string()
@@ -54,7 +54,8 @@ export const createProductSchema = z.object({
     stock: z.number().int().nonnegative("Stock must be a non-negative integer"),
     categoryId: z.string().uuid("Invalid category ID"),
     image: z.string().url().optional(),
-    sku: z.string().optional(),
+    sku: z.string().min(1, "SKU is required"),
+    status: z.enum(["ACTIVE", "INACTIVE", "OUT_OF_STOCK"]).optional(),
 });
 
 export const updateProductSchema = z.object({

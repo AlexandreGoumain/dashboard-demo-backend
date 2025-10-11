@@ -23,13 +23,13 @@ router.use(authenticate);
 
 // Product routes
 router.get("/", getProducts);
+router.get("/categories/all", getCategories);
 router.get("/:id", getProductById);
 router.post("/", validate(createProductSchema), createProduct);
 router.put("/:id", validate(updateProductSchema), updateProduct);
 router.delete("/:id", deleteProduct);
 
 // Category routes
-router.get("/categories/all", getCategories);
 router.post(
     "/categories",
     authorize("ADMIN"),

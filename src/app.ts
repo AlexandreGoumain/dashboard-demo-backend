@@ -13,6 +13,12 @@ import authRoutes from "./routes/authRoutes";
 import productRoutes from "./routes/productRoutes";
 import userRoutes from "./routes/userRoutes";
 
+// Import shop routes
+import categoryRoutes from "./routes/categoryRoutes";
+import orderRoutes from "./routes/orderRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
+import shopProductRoutes from "./routes/shopProductRoutes";
+
 const app = express();
 
 // Security middleware
@@ -70,6 +76,12 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/analytics", analyticsRoutes);
+
+// Shop API routes
+app.use("/api/shop/categories", categoryRoutes);
+app.use("/api/shop/products", shopProductRoutes);
+app.use("/api/shop/orders", orderRoutes);
+app.use("/api/shop/reviews", reviewRoutes);
 
 // 404 handler
 app.use((_req, res) => {

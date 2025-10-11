@@ -7,14 +7,27 @@ import {
     UpdateProductInput,
 } from "../types";
 
+function toNumber(value: unknown): number | undefined {
+    if (value === undefined || value === null) {
+        return undefined;
+    }
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export class ProductService {
     async getProducts(query: ProductFilters) {
-        const page = query.page || 1;
-        const limit = query.limit || 10;
+        const parsedPage = toNumber(query.page);
+        const parsedLimit = toNumber(query.limit);
+        const page = parsedPage && parsedPage > 0 ? Math.floor(parsedPage) : 1;
+        const limit =
+            parsedLimit && parsedLimit > 0 ? Math.floor(parsedLimit) : 10;
         const skip = (page - 1) * limit;
         const sortBy = query.sortBy || "createdAt";
-        const order = query.order || "desc";
+        const order = query.order === "asc" ? "asc" : "desc";
         const search = query.search || "";
+        const minPrice = toNumber(query.minPrice);
+        const maxPrice = toNumber(query.maxPrice);
 
         // Build where clause
         const where: any = {};
@@ -35,10 +48,10 @@ export class ProductService {
             where.status = query.status;
         }
 
-        if (query.minPrice || query.maxPrice) {
+        if (minPrice !== undefined || maxPrice !== undefined) {
             where.price = {};
-            if (query.minPrice) where.price.gte = query.minPrice;
-            if (query.maxPrice) where.price.lte = query.maxPrice;
+            if (minPrice !== undefined) where.price.gte = minPrice;
+            if (maxPrice !== undefined) where.price.lte = maxPrice;
         }
 
         // Get total count
@@ -136,7 +149,7 @@ export class ProductService {
     }
 
     async createProduct(data: CreateProductInput, userId: string) {
-        // Check if category exists
+        // Validate category exists
         const category = await prisma.category.findUnique({
             where: { id: data.categoryId },
         });
@@ -145,22 +158,40 @@ export class ProductService {
             throw new AppError(404, "Category not found");
         }
 
-        // Check SKU uniqueness if provided
-        if (data.sku) {
-            const existingSku = await prisma.product.findUnique({
-                where: { sku: data.sku },
-            });
-
-            if (existingSku) {
-                throw new AppError(409, "Product with this SKU already exists");
-            }
+        // Enforce SKU uniqueness
+        const existingSku = await prisma.product.findUnique({
+            where: { sku: data.sku },
+        });
+        if (existingSku) {
+            throw new AppError(409, "Product with this SKU already exists");
         }
 
-        // Create product
+        // Generate slug from name
+        const slug = data.name
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .trim();
+
+        // Determine status (auto OUT_OF_STOCK if stock is 0)
+        let status = data.status;
+        if (data.stock === 0) {
+            status = ProductStatus.OUT_OF_STOCK;
+        }
+
+        const { categoryId, image, ...rest } = data;
+
         const product = await prisma.product.create({
             data: {
-                ...data,
+                ...rest,
+                slug,
+                categoryId,
                 userId,
+                ...(status ? { status } : {}),
+                ...(image ? { images: [image] } : {}),
             },
             include: {
                 category: true,
@@ -170,6 +201,9 @@ export class ProductService {
                         name: true,
                         email: true,
                     },
+                },
+                _count: {
+                    select: { sales: true },
                 },
             },
         });
@@ -274,7 +308,13 @@ export class ProductService {
             orderBy: { name: "asc" },
         });
 
-        return categories;
+        // Map to align with frontend ProductCategory shape
+        return categories.map((c) => ({
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            productsCount: c._count.products,
+        }));
     }
 
     async createCategory(name: string, slug: string) {

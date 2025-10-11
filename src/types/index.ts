@@ -72,7 +72,8 @@ export interface CreateProductInput {
     stock: number;
     categoryId: string;
     image?: string;
-    sku?: string;
+    sku: string;
+    status?: ProductStatus;
 }
 
 export interface UpdateProductInput {
