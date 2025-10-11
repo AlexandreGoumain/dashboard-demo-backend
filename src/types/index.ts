@@ -64,6 +64,18 @@ export interface UpdateUserInput {
     password?: string;
 }
 
+export interface ProjectInstance {
+    id: string;
+    name: string;
+    slug: string;
+    industry?: string;
+    region?: string;
+    plan?: string;
+    createdAt: string;
+    updatedAt?: string | null;
+    logoUrl?: string | null;
+}
+
 // Product types
 export interface CreateProductInput {
     name: string;

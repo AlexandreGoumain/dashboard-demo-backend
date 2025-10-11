@@ -8,10 +8,11 @@ import { errorHandler } from "./middleware/errorHandler";
 import { generalLimiter } from "./middleware/rateLimiter";
 
 // Import routes
-import analyticsRoutes from "./routes/analyticsRoutes";
 import authRoutes from "./routes/authRoutes";
-import productRoutes from "./routes/productRoutes";
 import userRoutes from "./routes/userRoutes";
+import analyticsRoutes from "./routes/analyticsRoutes";
+import productRoutes from "./routes/productRoutes";
+import instanceRoutes from "./routes/instanceRoutes";
 
 // Import shop routes
 import categoryRoutes from "./routes/categoryRoutes";
@@ -75,6 +76,7 @@ app.get("/health", (_req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/instances", instanceRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
 // Shop API routes

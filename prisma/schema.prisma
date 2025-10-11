@@ -49,6 +49,7 @@ model User {
   products  Product[]
   orders    Order[]
   reviews   Review[]
+  instances Instance[] @relation("UserInstances")
 
   @@map("users")
 }
@@ -163,4 +164,20 @@ model Review {
   updatedAt  DateTime     @updatedAt
 
   @@map("reviews")
+}
+
+model Instance {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  industry  String?
+  region    String?
+  plan      String?
+  logoUrl   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   User[]   @relation("UserInstances")
+
+  @@map("instances")
 }

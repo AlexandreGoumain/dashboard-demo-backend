@@ -1,8 +1,36 @@
+import { Instance, User as PrismaUser } from "@prisma/client";
 import prisma from "../config/database";
 import { AppError } from "../middleware/errorHandler";
 import { LoginInput, RegisterInput } from "../types";
 import { generateToken } from "../utils/jwt";
 import { comparePassword, hashPassword } from "../utils/password";
+
+function serializeInstance(instance: Instance) {
+    return {
+        id: instance.id,
+        name: instance.name,
+        slug: instance.slug,
+        industry: instance.industry ?? undefined,
+        region: instance.region ?? undefined,
+        plan: instance.plan ?? undefined,
+        logoUrl: instance.logoUrl ?? null,
+        createdAt: instance.createdAt.toISOString(),
+        updatedAt: instance.updatedAt?.toISOString() ?? undefined,
+    };
+}
+
+function serializeUser(user: PrismaUser & { instances: Instance[] }) {
+    return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        avatar: user.avatar,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt?.toISOString() ?? undefined,
+        instances: user.instances.map(serializeInstance),
+    };
+}
 
 export class AuthService {
     async register(data: RegisterInput) {
@@ -21,29 +49,23 @@ export class AuthService {
         const role = data.role ?? "USER";
 
         // Create user
-        const user = await prisma.user.create({
+        const createdUser = await prisma.user.create({
             data: {
                 email: data.email,
                 password: hashedPassword,
                 name: data.name,
                 role,
             },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                role: true,
-                avatar: true,
-                createdAt: true,
-            },
         });
 
         // Generate token
         const token = generateToken({
-            id: user.id,
-            email: user.email,
-            role: user.role,
+            id: createdUser.id,
+            email: createdUser.email,
+            role: createdUser.role,
         });
+
+        const user = await this.getProfile(createdUser.id);
 
         return { user, token };
     }
@@ -76,13 +98,7 @@ export class AuthService {
         });
 
         return {
-            user: {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                role: user.role,
-                avatar: user.avatar,
-            },
+            user: await this.getProfile(user.id),
             token,
         };
     }
@@ -90,14 +106,8 @@ export class AuthService {
     async getProfile(userId: string) {
         const user = await prisma.user.findUnique({
             where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                name: true,
-                role: true,
-                avatar: true,
-                createdAt: true,
-                updatedAt: true,
+            include: {
+                instances: true,
             },
         });
 
@@ -105,6 +115,6 @@ export class AuthService {
             throw new AppError(404, "User not found");
         }
 
-        return user;
+        return serializeUser(user);
     }
 }
